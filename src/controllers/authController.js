@@ -101,7 +101,7 @@ const login = async (req, res) => {
         id_usuario: user.id_usuario, 
         nombre: user.nombre 
       },
-      'tu_clave_secreta_muy_segura_12345',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
