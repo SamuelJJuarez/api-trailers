@@ -3,11 +3,11 @@ require('dotenv').config();
 
 // Crear el pool de conexiones
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  host: br8403njqzikmkiuxsyl-mysql.services.clever-cloud.com,
+  user: uakvssuyht1s1qno,
+  password: wklsB1No6Ftt5p8sMoaJ,
+  database: br8403njqzikmkiuxsyl,
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

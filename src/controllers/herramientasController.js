@@ -157,7 +157,7 @@ const obtenerHerramientaPorNombre = async (req, res) => {
   }
 };
 
-// Buscar herramientas por nombre o marca
+// Buscar herramientas por nombre o marca (CON DISPONIBILIDAD)
 const buscarHerramientas = async (req, res) => {
   try {
     const { busqueda } = req.query;
@@ -170,10 +170,20 @@ const buscarHerramientas = async (req, res) => {
     }
 
     const [herramientas] = await pool.query(
-      `SELECT * FROM herramientas 
-       WHERE nombre LIKE ? 
-       OR marca LIKE ?
-       ORDER BY nombre`,
+      `SELECT 
+        h.id_herramienta,
+        h.nombre,
+        h.marca,
+        h.cantidad_total,
+        COUNT(sh.id_herramienta) as cantidad_prestada,
+        (h.cantidad_total - COUNT(sh.id_herramienta)) as cantidad_disponible
+       FROM herramientas h
+       LEFT JOIN servicio_herramientas sh ON h.id_herramienta = sh.id_herramienta 
+         AND sh.fecha_devolucion IS NULL
+       WHERE h.nombre LIKE ? 
+       OR h.marca LIKE ?
+       GROUP BY h.id_herramienta
+       ORDER BY h.nombre`,
       [
         `%${busqueda}%`,
         `%${busqueda}%`
