@@ -10,7 +10,6 @@ pnpm-debug.log*
 # =========================
 # VARIABLES DE ENTORNO
 # =========================
-.env
 .env.local
 .env.development
 .env.test

@@ -6,8 +6,12 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 // Todas las rutas de empleados requieren autenticación
 router.use(authenticateToken);
 
-// Rutas de consulta de empleados
+// CRUD de empleados
+router.post('/', empleadosController.crearEmpleado);
 router.get('/', empleadosController.obtenerEmpleados);
-router.get('/nombre/:nombre', empleadosController.obtenerEmpleadoPorNombre);
+router.get('/buscar', empleadosController.buscarEmpleados);
+router.get('/:rfc', empleadosController.obtenerEmpleadoPorRFC);
+router.put('/:rfc', empleadosController.actualizarEmpleado);
+router.delete('/:rfc', empleadosController.eliminarEmpleado);
 
 module.exports = router;

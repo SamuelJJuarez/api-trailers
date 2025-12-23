@@ -6,8 +6,12 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 // Todas las rutas de proveedores requieren autenticación
 router.use(authenticateToken);
 
-// Rutas de consulta de proveedores
+// CRUD de proveedores
+router.post('/', proveedoresController.crearProveedor);
 router.get('/', proveedoresController.obtenerProveedores);
-router.get('/nombre/:nombre', proveedoresController.obtenerProveedorPorNombre);
+router.get('/buscar', proveedoresController.buscarProveedores);
+router.get('/:id', proveedoresController.obtenerProveedorPorId);
+router.put('/:id', proveedoresController.actualizarProveedor);
+router.delete('/:id', proveedoresController.eliminarProveedor);
 
 module.exports = router;

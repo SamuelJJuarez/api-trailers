@@ -10,6 +10,7 @@ const herramientasRoutes = require('./routes/herramientasRoutes');
 const refaccionesRoutes = require('./routes/refaccionesRoutes');
 const proveedoresRoutes = require('./routes/proveedoresRoutes');
 const empleadosRoutes = require('./routes/empleadosRoutes');
+const serviciosRoutes = require('./routes/serviciosRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.use('/api/herramientas', herramientasRoutes);
 app.use('/api/refacciones', refaccionesRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 app.use('/api/empleados', empleadosRoutes);
+app.use('/api/servicios', serviciosRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
@@ -92,6 +94,14 @@ const startServer = async () => {
     console.log(`\n   EMPLEADOS:`);
     console.log(`   - GET    http://localhost:${PORT}/api/empleados`);
     console.log(`   - GET    http://localhost:${PORT}/api/empleados/nombre/:nombre\n`);
+    console.log(`\n   SERVICIOS:`);
+    console.log(`   - POST   http://localhost:${PORT}/api/servicios`);
+    console.log(`   - GET    http://localhost:${PORT}/api/servicios`);
+    console.log(`   - GET    http://localhost:${PORT}/api/servicios/buscar?busqueda=texto`);
+    console.log(`   - GET    http://localhost:${PORT}/api/servicios/:id`);
+    console.log(`   - PUT    http://localhost:${PORT}/api/servicios/:id`);
+    console.log(`   - DELETE http://localhost:${PORT}/api/servicios/:id`);
+    console.log(`   - PUT    http://localhost:${PORT}/api/servicios/:id_servicio/herramientas/:id_herramienta/devolver`);
   });
 };
 

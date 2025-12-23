@@ -157,7 +157,7 @@ const obtenerHerramientaPorNombre = async (req, res) => {
   }
 };
 
-// Buscar herramientas por nombre o marca (CON DISPONIBILIDAD)
+// Buscar herramientas por nombre o marca
 const buscarHerramientas = async (req, res) => {
   try {
     const { busqueda } = req.query;
@@ -175,14 +175,15 @@ const buscarHerramientas = async (req, res) => {
         h.nombre,
         h.marca,
         h.cantidad_total,
-        COUNT(sh.id_herramienta) as cantidad_prestada,
-        (h.cantidad_total - COUNT(sh.id_herramienta)) as cantidad_disponible
+        -- Usamos la misma lógica que en obtenerDisponibilidad
+        COUNT(CASE WHEN sh.estado = 'Ocupada' THEN 1 END) as cantidad_en_uso,
+        (h.cantidad_total - COUNT(CASE WHEN sh.estado = 'Ocupada' THEN 1 END)) as cantidad_disponible
        FROM herramientas h
        LEFT JOIN servicio_herramientas sh ON h.id_herramienta = sh.id_herramienta 
-         AND sh.fecha_devolucion IS NULL
-       WHERE h.nombre LIKE ? 
-       OR h.marca LIKE ?
+         -- Quitamos la condición de fecha_devolucion IS NULL si solo te basas en el estado 'Ocupada'
+         -- O la dejamos si tu lógica requiere ambas. Por consistencia con tu otro endpoint:
        GROUP BY h.id_herramienta
+       HAVING h.nombre LIKE ? OR h.marca LIKE ?
        ORDER BY h.nombre`,
       [
         `%${busqueda}%`,
@@ -303,18 +304,32 @@ const eliminarHerramienta = async (req, res) => {
       });
     }
 
-    // Verificar si la herramienta tiene asignaciones en servicios
-    const [asignacionesActivas] = await pool.query(
+    // 2. Verificar si la herramienta está EN USO actualmente (Estado 'Ocupada')
+    const [enUso] = await pool.query(
       `SELECT COUNT(*) as total 
        FROM servicio_herramientas 
-       WHERE id_herramienta = ? AND fecha_devolucion IS NULL`,
+       WHERE id_herramienta = ? AND estado = 'Ocupada'`,
       [id]
     );
 
-    if (asignacionesActivas[0].total > 0) {
+    if (enUso[0].total > 0) {
       return res.status(409).json({ 
         success: false, 
-        message: `No se puede eliminar la herramienta porque tiene ${asignacionesActivas[0].total} asignación(es) activa(s) en servicios` 
+        message: `No se puede eliminar: la herramienta está actualmente en uso en ${enUso[0].total} servicio(s).` 
+      });
+    }
+
+    // 3. Verificar si tiene HISTORIAL (aunque esté Libre)
+    // Esto evita el error 500 de llave foránea en la base de datos
+    const [historial] = await pool.query(
+      'SELECT COUNT(*) as total FROM servicio_herramientas WHERE id_herramienta = ?',
+      [id]
+    );
+
+    if (historial[0].total > 0) {
+      return res.status(409).json({ 
+        success: false, 
+        message: `No se puede eliminar la herramienta porque tiene historial de uso en ${historial[0].total} servicio(s).` 
       });
     }
 
@@ -346,11 +361,10 @@ const obtenerDisponibilidad = async (req, res) => {
         h.nombre,
         h.marca,
         h.cantidad_total,
-        COUNT(sh.id_herramienta) as cantidad_prestada,
-        (h.cantidad_total - COUNT(sh.id_herramienta)) as cantidad_disponible
+        COUNT(CASE WHEN sh.estado = 'Ocupada' THEN 1 END) as cantidad_en_uso,
+        (h.cantidad_total - COUNT(CASE WHEN sh.estado = 'Ocupada' THEN 1 END)) as cantidad_disponible
        FROM herramientas h
-       LEFT JOIN servicio_herramientas sh ON h.id_herramienta = sh.id_herramienta 
-         AND sh.fecha_devolucion IS NULL
+       LEFT JOIN servicio_herramientas sh ON h.id_herramienta = sh.id_herramienta
        GROUP BY h.id_herramienta
        ORDER BY h.nombre`
     );
