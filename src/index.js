@@ -11,6 +11,7 @@ const refaccionesRoutes = require('./routes/refaccionesRoutes');
 const proveedoresRoutes = require('./routes/proveedoresRoutes');
 const empleadosRoutes = require('./routes/empleadosRoutes');
 const serviciosRoutes = require('./routes/serviciosRoutes');
+const usuariosRoutes = require('./routes/usuariosRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use('/api/refacciones', refaccionesRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 app.use('/api/empleados', empleadosRoutes);
 app.use('/api/servicios', serviciosRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
